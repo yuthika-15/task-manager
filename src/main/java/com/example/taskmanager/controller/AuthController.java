@@ -1,6 +1,6 @@
 package com.example.taskmanager.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;  
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.taskmanager.model.User;
@@ -16,17 +16,18 @@ public class AuthController {
 
     @PostMapping("/signup")
     public User signup(@RequestBody User user) {
+        if (user.getRole() == null) {
+            user.setRole("MEMBER");
+        }
         return userRepo.save(user);
     }
- 
+
     @PostMapping("/login")
     public User login(@RequestBody User user) {
-
         return userRepo.findAll().stream()
             .filter(x -> x.getEmail().equals(user.getEmail()) &&
                          x.getPassword().equals(user.getPassword()))
             .findFirst()
             .orElse(null);
-
     }
 }
