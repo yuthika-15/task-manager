@@ -22,12 +22,13 @@ public class AuthController {
         return userRepo.save(user);
     }
 
-    @PostMapping("/login")
+  @PostMapping("/login")
 public User login(@RequestBody User user) {
-    User found = userRepo.findByEmailAndPassword(
-        user.getEmail(),
-        user.getPassword()
-    );
-    return found;
-}
+
+    User found = userRepo.findByEmail(user.getEmail());
+    if (found != null && found.getPassword().equals(user.getPassword())) {
+        return found;
+    }
+    return null;
+}}
 }
