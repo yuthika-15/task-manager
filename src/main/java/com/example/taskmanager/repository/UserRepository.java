@@ -5,5 +5,5 @@ import com.example.taskmanager.model.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User findByEmail(String email);
+    User findByEmailAndPassword(String email, String password);
 }
