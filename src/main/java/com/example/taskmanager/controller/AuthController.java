@@ -23,11 +23,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public User login(@RequestBody User user) {
-        return userRepo.findAll().stream()
-            .filter(x -> x.getEmail().equals(user.getEmail()) &&
-                         x.getPassword().equals(user.getPassword()))
-            .findFirst()
-            .orElse(null);
-    }
+public User login(@RequestBody User user) {
+    User found = userRepo.findByEmailAndPassword(
+        user.getEmail(),
+        user.getPassword()
+    );
+    return found;
+}
 }
