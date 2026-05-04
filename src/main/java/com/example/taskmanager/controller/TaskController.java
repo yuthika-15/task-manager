@@ -32,11 +32,6 @@ public class TaskController {
     public Task create(@RequestBody Task t, @RequestParam String email) {
 
         User user = userRepo.findByEmail(email);
-
-        if (user == null || !user.getRole().equals("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
-        }
-
         return repo.save(t);
     }
 
