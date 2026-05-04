@@ -61,7 +61,7 @@
 </div>
 <script>
 const BASE = window.location.origin;
-const API = "http://localhost:8080/tasks";
+const API = BASE + "/tasks";
 
 //  SWITCH UI
 function showSignup() {
@@ -135,11 +135,12 @@ function addTask() {
         alert("Task title required");
         return;
     }
+
     fetch(API + "?email=" + localStorage.getItem("email"), {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
-              },
+        },
         body: JSON.stringify({
             title: title,
             status: "PENDING",
@@ -148,17 +149,18 @@ function addTask() {
     })
     .then(res => {
         if (!res.ok) {
-            alert("Not authorized (only admin)");
-            return;
+            return res.text().then(err => {
+                alert("Error: " + err);
+            });
         }
         return res.json();
     })
     .then(() => {
         document.getElementById("title").value = "";
-        document.getElementById("deadline").value = ""; 
+        document.getElementById("deadline").value = "";
         loadTasks();
-    });
-
+    })
+    .catch(err => console.log("ADD ERROR:", err));
 }
 
 // LOAD TASKS
@@ -171,24 +173,22 @@ function loadTasks() {
 
             data.forEach(t => {
                 let status = t.status;
-                // Overdue 
+
                 if (t.deadline && t.status !== "DONE") {
+                    let today = new Date();
+                    let deadline = new Date(t.deadline);
 
-                   let today = new Date();
-                   let deadline = new Date(t.deadline);
+                    today.setHours(0,0,0,0);
+                    deadline.setHours(0,0,0,0);
 
-                 // removing time difference issue
-                   today.setHours(0,0,0,0);
-                   deadline.setHours(0,0,0,0);
-
-                if (deadline < today) {
-                   status = "OVERDUE";
-                     } else {
-                     status = "PENDING";
-                   }
+                    if (deadline < today) {
+                        status = "OVERDUE";
+                    } else {
+                        status = "PENDING";
+                    }
                 }
 
-               list.innerHTML += `
+                list.innerHTML += `
                 <tr>
                     <td>${t.title}</td>
                     <td>${status}</td>
@@ -197,24 +197,36 @@ function loadTasks() {
                 </tr>
                 `;
             });
-        });
+        })
+        .catch(err => console.log("LOAD ERROR:", err));
 }
+
 
 // DONE BUTTON
 function markDone(id) {
     fetch(API + "/" + id + "?status=DONE", {
         method: "PUT"
     })
-    .then(() => loadTasks());
+    .then(() => loadTasks())
+    .catch(err => console.log("DONE ERROR:", err));
 }
+
 
 // AUTO LOGIN
 window.onload = function () {
     let role = localStorage.getItem("role");
+
     if (role === "MEMBER") {
-        document.querySelector("button[onclick='addTask()']").style.display = "none";
+        const btn = document.querySelector("button[onclick='addTask()']");
+        if (btn) btn.style.display = "none";
     }
 
+    // AUTO LOAD TASKS AFTER LOGIN
+    if (localStorage.getItem("email")) {
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("appSection").style.display = "block";
+        loadTasks();
+    }
 };
 </script>
 
