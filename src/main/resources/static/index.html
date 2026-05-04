@@ -86,7 +86,7 @@ function login() {
     })
     .then(res => res.json())
     .then(user => {
-        if (user) {
+        if (user && user.email) {
         	
         	console.log("LOGIN RESPONSE:", user);
 
