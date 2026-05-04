@@ -29,11 +29,14 @@ public class TaskController {
     }
 
     @PostMapping
-    public Task create(@RequestBody Task t, @RequestParam String email) {
+public Task create(@RequestBody Task t, @RequestParam String email) {
 
-        User user = userRepo.findByEmail(email);
-        return repo.save(t);
+    User user = userRepo.findByEmail(email);
+    if (user == null || !"ADMIN".equalsIgnoreCase(user.getRole())) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only ADMIN can create tasks");
     }
+    return repo.save(t);
+}
 
     @PutMapping("/{id}")
     public Task update(@PathVariable Long id, @RequestParam("status") String status) {
