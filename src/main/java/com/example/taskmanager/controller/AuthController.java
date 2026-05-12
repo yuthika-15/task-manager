@@ -16,6 +16,12 @@ public class AuthController {
 
     @PostMapping("/signup")
     public User signup(@RequestBody User user) {
+        User existing = userRepo.findByEmail(user.getEmail());
+        
+        if (existing != null) {
+            throw new RuntimeException("Email already exists");
+        }
+
         if (user.getRole() == null) {
             user.setRole("MEMBER");
         }

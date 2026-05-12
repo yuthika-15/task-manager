@@ -1,5 +1,5 @@
 package com.example.taskmanager.model;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,6 +11,7 @@ public class User {
     private Long id;
 
     private String name;
+    @Column(unique=true)
     private String email;
     private String password;
     private String role; // ADMIN or MEMBER

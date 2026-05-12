@@ -17,22 +17,16 @@ public class TaskmanagerApplication {
 	@Bean
 	CommandLineRunner init(UserRepository repo) {
 	    return args -> {
-	        if (repo.count() == 0) { 
+
+	        if (repo.findByEmail("newadmin@gmail.com") == null) {
 
 	            User admin = new User();
-	            admin.setName("Admin2");
-	            admin.setEmail("admin2@gmail.com");
+	            admin.setName("Admin");
+	            admin.setEmail("newadmin@gmail.com");
 	            admin.setPassword("123");
 	            admin.setRole("ADMIN");
 
-	            User member = new User();
-	            member.setName("Member");
-	            member.setEmail("member@gmail.com");
-	            member.setPassword("123");
-	            member.setRole("MEMBER");
-
 	            repo.save(admin);
-	            repo.save(member);
 	        }
 	    };
 	}
