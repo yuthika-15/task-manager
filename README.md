@@ -1,13 +1,12 @@
-##Task Manager Application
+# Task Manager Application
 
-# Live Demo
+## Live Demo
 https://task-manager-2-qjjw.onrender.com
 
-#Overview
-This is a full-stack Task Manager application built using Spring Boot and MySQL. It allows users to register, log in, and manage tasks
-through a simple web interface. The application is deployed on Railway and demonstrates end-to-end backend and frontend integration.
+## Overview
+This is a full-stack Task Manager application built using Spring Boot and PostgreSQL. It allows users to register, log in, and manage tasks through a simple web interface. The application is deployed on Render using Docker and demonstrates end-to-end backend and frontend integration.
 
-#Features
+## Features
 - User registration and login
 - Role-based access (Admin and Member)
 - Admin can create tasks
@@ -17,47 +16,39 @@ through a simple web interface. The application is deployed on Railway and demon
 - Deadline-based task management
 - Deployed and accessible via public URL
 
-#Tech Stack
-
+## Tech Stack
 - Backend: Spring Boot (Java)
 - Frontend: HTML, JavaScript
-- Database: MySQL
-- Deployment: Railway
+- Database: PostgreSQL
+- Deployment: Render + Docker
 
-#Project Structure
-
+## Project Structure
 - Controller Layer: Handles HTTP requests
 - Repository Layer: Manages database operations using JPA
 - Model Layer: Defines entities like User and Task
 - Frontend: Single HTML file with embedded JavaScript
 
-#API Endpoints
-
-- POST /login → User login
-- POST /signup → User registration
+## API Endpoints
+- POST /auth/login → User login
+- POST /auth/signup → User registration
 - GET /tasks → Fetch all tasks
 - POST /tasks → Create a new task (Admin only)
 - PUT /tasks/{id}?status=DONE → Mark task as completed
 
-#How to Run Locally
-
+## How to Run Locally
 1. Clone the repository
-2. Configure MySQL in application.properties
+2. Configure PostgreSQL in application.properties
 3. Run the Spring Boot application
-4. Open the application in browser at localhost
+4. Open the application in browser at localhost:8080
 
-#Deployment
+## Deployment
+The application is deployed on Render using Docker. The backend is connected to a PostgreSQL database hosted on Render.
 
-The application is deployed on Railway. The backend is connected to a MySQL database hosted on Railway.
-
-#Notes
-
+## Notes
 - This project uses basic authentication logic for demonstration purposes
 - Passwords are stored in plain text (not recommended for production)
 - Can be enhanced using password hashing and Spring Security
--
 
-Author
-
-Final Year Electronics and Telecommunication Student
+## Author
+Final Year Electronics and Telecommunication Student  
 Interested in Backend Development and Software Engineering
