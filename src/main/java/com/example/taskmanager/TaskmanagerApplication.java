@@ -20,8 +20,8 @@ public class TaskmanagerApplication {
 	        if (repo.count() == 0) { 
 
 	            User admin = new User();
-	            admin.setName("Admin");
-	            admin.setEmail("admin@gmail.com");
+	            admin.setName("Admin2");
+	            admin.setEmail("admin2@gmail.com");
 	            admin.setPassword("123");
 	            admin.setRole("ADMIN");
 
