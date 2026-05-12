@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Manager</title>
+</head>
+<body>
+
+<!--LOGIN SECTION -->
+<div id="loginSection">
+    <h2>Login</h2>
+    <input id="loginEmail" placeholder="Email">
+    <input id="loginPassword" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <p>Don't have an account?</p>
+    <button onclick="showSignup()">Go to Signup</button>
+</div>
+
+<!--SIGNUP SECTION -->
+<div id="signupSection" style="display:none;">
+    <h2>Signup</h2>
+    <input id="signupName" placeholder="Name">
+    <input id="signupEmail" placeholder="Email">
+    <input id="signupPassword" type="password" placeholder="Password">
+    
+    <select id="signupRole">
+        <option value="ADMIN">Admin</option>
+        <option value="MEMBER">Member</option>
+    </select>
+
+    <button onclick="signup()">Signup</button>
+
+    <p>Already have an account?</p>
+    <button onclick="showLogin()">Go to Login</button>
+</div>
+
+<!-- MAIN APP -->
+<div id="appSection" style="display:none;">
+
+    <h2>Create Task</h2>
+    <input id="deadline" type="date">
+    <input id="title" placeholder="Task title">
+    <button onclick="addTask()">Add Task</button>
+
+    <h2>Dashboard</h2>
+   <table border="1">
+    <thead>
+        <tr>
+            <th>Task</th>
+            <th>Status</th>
+            <th>Due Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="taskList"></tbody>
+</table>
+
+    <br>
+    <button onclick="logout()">Logout</button>
+
+</div>
+<script>
+const BASE = window.location.origin.includes("localhost")?"http://localhost:8080":window.location.origin;
+const API = BASE + "/tasks";
+
+//  SWITCH UI
+function showSignup() {
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("signupSection").style.display = "block";
+}
+
+function showLogin() {
+    document.getElementById("signupSection").style.display = "none";
+    document.getElementById("loginSection").style.display = "block";
+}
+
+//  LOGIN
+function login() {
+    fetch(BASE + "/auth/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            email: document.getElementById("loginEmail").value,
+            password: document.getElementById("loginPassword").value
+        })
+    })
+    .then(res => res.json())
+    .then(user => {
+        if (user && user.email) {
+        	
+        	console.log("LOGIN RESPONSE:", user);
+
+            localStorage.setItem("email", user.email);
+            localStorage.setItem("role", user.role); 
+
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("appSection").style.display = "block";
+
+            loadTasks();
+        } else {
+            alert("Invalid login");
+        }
+    });
+}
+
+//  SIGNUP
+function signup() {
+    fetch(BASE + "/auth/signup", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            name: document.getElementById("signupName").value,
+            email: document.getElementById("signupEmail").value,
+            password: document.getElementById("signupPassword").value,
+            role: document.getElementById("signupRole").value
+        })
+    })
+    .then(() => {
+        alert("Signup successful");
+        showLogin();
+    });
+}
+
+//  LOGOUT
+function logout() {
+    localStorage.clear();
+    location.reload();
+}
+
+// ADD TASK
+function addTask() {
+    const title = document.getElementById("title").value;
+
+    if (!title) {
+        alert("Task title required");
+        return;
+    }
+
+    fetch(API + "?email=" + localStorage.getItem("email"), {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title: title,
+            status: "PENDING",
+            deadline: document.getElementById("deadline").value || null
+        })
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.text().then(err => {
+                alert("Error: " + err);
+            });
+        }
+        return res.json();
+    })
+    .then(() => {
+        document.getElementById("title").value = "";
+        document.getElementById("deadline").value = "";
+        loadTasks();
+    })
+    .catch(err => console.log("ADD ERROR:", err));
+}
+
+// LOAD TASKS
+function loadTasks() {
+    fetch(API)
+        .then(res => res.json())
+        .then(data => {
+            const list = document.getElementById("taskList");
+            list.innerHTML = "";
+
+            data.forEach(t => {
+                let status = t.status;
+
+                if (t.deadline && t.status !== "DONE") {
+                    let today = new Date();
+                    let deadline = new Date(t.deadline);
+
+                    today.setHours(0,0,0,0);
+                    deadline.setHours(0,0,0,0);
+
+                    if (deadline < today) {
+                        status = "OVERDUE";
+                    } else {
+                        status = "PENDING";
+                    }
+                }
+
+                list.innerHTML += `
+                <tr>
+                    <td>${t.title}</td>
+                    <td>${status}</td>
+                    <td>${t.deadline ? t.deadline : "-"}</td>
+                    <td><button onclick="markDone(${t.id})">Done</button></td>
+                </tr>
+                `;
+            });
+        })
+        .catch(err => console.log("LOAD ERROR:", err));
+}
+
+
+// DONE BUTTON
+function markDone(id) {
+    fetch(API + "/" + id + "?status=DONE", {
+        method: "PUT"
+    })
+    .then(() => loadTasks())
+    .catch(err => console.log("DONE ERROR:", err));
+}
+
+
+// AUTO LOGIN
+window.onload = function () {
+    let role = localStorage.getItem("role");
+
+    if (role === "MEMBER") {
+        const btn = document.querySelector("button[onclick='addTask()']");
+        if (btn) btn.style.display = "none";
+    }
+
+    // AUTO LOAD TASKS AFTER LOGIN
+    if (localStorage.getItem("email")) {
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("appSection").style.display = "block";
+        loadTasks();
+    }
+};
+</script>
+
+</body>
+</html>
